@@ -1,49 +1,6 @@
 import math
 import numpy as np
 
-# version = 0
-
-# Differential Equation Parameters
-
-# if version == 0:
-#     mu = 1
-#     alpha = 0.2
-#     beta = 1.09
-#     eps = 0.005
-
-# if version == 4:
-#     alpha = 0.1
-#     gamma = 1
-#     beta = 0.3
-#     eps = 0.05
-#     delta = 0.07
-
-# # Stimulation Parameters
-# I_stim = 0.5
-# T = 230
-# duration = 1
-
-# t_start = 0
-# stimulation_on = True
-
-# # Time Parameters
-# dt = 0.1
-# t_f = 4000
-# n = int(np.ceil(t_f / dt))
-
-# # Initial Conditions and Variables Storage Arrays
-# v_0 = 0
-# w_0 = 0.1
-# t_0 = 0
-# v_val = np.zeros(n + 1)
-# w_val = np.zeros(n + 1)
-# t_val = np.zeros(n + 1)
-# v_val[0] = v_0
-# w_val[0] = w_0
-# t_val[0] = t_0
-
-# intersect = []
-
 def v_diff(version, v, w,  *args):
     if version == 0:
         mu, alpha = args
