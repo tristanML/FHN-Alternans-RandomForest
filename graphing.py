@@ -8,7 +8,7 @@ version = 0
 
 if version == 0:
     mu = 1
-    alpha = 0.1
+    alpha = 0.2
     beta = 1.09
     eps = 0.005
     v_param = [mu, alpha]
@@ -33,7 +33,7 @@ I_param = [T, duration, I_stim, t_start]
 
 # Time Parameters
 dt = 0.1
-t_f = 10000
+t_f = 5000
 n = int(np.ceil(t_f / dt))
 
 # Initial Conditions and Variables Storage Arrays

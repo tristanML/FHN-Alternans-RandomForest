@@ -17,18 +17,18 @@ def w_diff(version, v, w, *args):
         eps, beta, gamma, delta = args
         return eps * (beta * v - gamma * w - delta)
 
-def step(version, v, w, t, dt, v_param, w_param, *args, intersect):
+def step(version, v, w, t, dt, v_param, w_param, intersect, *args):
     I = 0
     T, duration, I_stim, t_start = args
     if t % T <= duration and t >= t_start:
         I = I_stim
         intersect.append([t,v,w])
-    v += (v_diff(version, v, w, *v_param)+I_stim) * dt
-    w += (w_diff(version, v, w, *w_param)+I_stim) * dt
+    v += (v_diff(version, v, w, *v_param)+I) * dt
+    w += w_diff(version, v, w, *w_param) * dt
     t += dt
     return v, w, round(t,1)
 
-def run(version, v_0, w_0, t_0, dt, n, v_param, w_param, I_param, intersect):
+def run(version, v_0, w_0, t_0, dt, n, v_param, w_param, I_param):
     intersect = []
     v_val = np.zeros(n + 1)
     w_val = np.zeros(n + 1)
@@ -37,8 +37,8 @@ def run(version, v_0, w_0, t_0, dt, n, v_param, w_param, I_param, intersect):
     w_val[0] = w_0
     t_val[0] = t_0
     for i in range(n):
-        v_0, w_0, t_0 = step(version, v_0, w_0, t_0, dt, v_param, w_param, I_param, intersect)
+        v_0, w_0, t_0 = step(version, v_0, w_0, t_0, dt, v_param, w_param, intersect, *I_param)
         v_val[i+1] = v_0
         w_val[i+1] = w_0
         t_val[i+1] = t_0
-    return v_val, w_val, t_val
+    return v_val, w_val, t_val, intersect
