@@ -10,7 +10,10 @@ if version == 0:
     mu = 1
     alpha = 0.2
     beta = 1.09
-    eps = 0.005
+    lower_beta = 1.04
+    mid_beta = 1.0889
+    max_beta = 1.119
+    eps = 0.01
     v_param = [mu, alpha]
     w_param = [eps, beta]
 
@@ -25,15 +28,16 @@ if version == 4:
 
 # Stimulation Parameters
 I_stim = 0.5
-T = 230
+T = 70
 duration = 1
 t_start = 0
+n_T = 500
 
 I_param = [T, duration, I_stim, t_start]
 
 # Time Parameters
-dt = 0.1
-t_f = 5000
+dt = 0.5
+t_f = T*n_T
 n = int(np.ceil(t_f / dt))
 
 # Initial Conditions and Variables Storage Arrays
@@ -47,10 +51,10 @@ v_val[0] = v_0
 w_val[0] = w_0
 t_val[0] = t_0
 
-threshold = 0.2
+v_val, w_val, t_val = run(version, v_0, w_0, t_0, dt, n, v_param, w_param, I_param)
 
-v_val, w_val, t_val, intersect = run(version, v_0, w_0, t_0, dt, n, v_param, w_param, I_param)
 
+threshold = 0.3*max(v_val)
 i2 = []
 for i in range(0, len(v_val)-1):
     if (v_val[i] - threshold)*(v_val[i+1] - threshold) < 0:
@@ -60,11 +64,20 @@ apd = []
 for i in range(0, len(i2)-1, 2):
     apd.append(i2[i+1][0]-i2[i][0])
 
-start = 0
-apd1 = np.mean(list(apd[i] for i in range(start, len(apd), 2)))
-apd2 = np.mean(list(apd[i] for i in range(start+1, len(apd), 2)))
+percent_value = 7/8
+apd_calc_start = round(percent_value*len(apd))
+apd_time_start = apd_calc_start * T
+plot_start_value = round(percent_value*n)
+print(percent_value, t_f/T, len(apd), apd_calc_start, apd_time_start, plot_start_value)
 
-print(apd1, apd2)
+
+apd1 = np.mean(list(apd[i] for i in range(apd_calc_start, len(apd), 2)))
+apd2 = np.mean(list(apd[i] for i in range(apd_calc_start+1, len(apd), 2)))
+
+if apd1 - 5 <= apd2 and apd2 <= apd1 + 5:
+    print("No alternans with APD: ", apd1, apd2)
+else:
+    print("Alternans with APD: ", apd1, apd2)
 
 v_null = np.linspace(min(v_val), max(v_val), 500)
 if version == 0:
@@ -76,12 +89,20 @@ if version == 4:
 
 graph = True
 
-fig = plt.figure(figsize=(10, 10))
+
+fig = plt.figure(figsize=(9, 9))
+# plt.plot(t_val[plot_start_value:], v_val[plot_start_value:], marker='', linestyle='-', color='r')
+# plt.plot(t_val[plot_start_value:], w_val[plot_start_value:], marker='', linestyle='-', color='b')
+# plt.plot(list(i[0] for i in i2[plot_start_value:]), list(i[1] for i in i2[plot_start_value:]), marker='x', linestyle='-', color='g')
+# plt.plot((apd_time_start, apd_time_start), (-0.05, 1.1*max(v_val)), marker='', linestyle='--', color='purple')
+
+
 plt.plot(t_val, v_val, marker='', linestyle='-', color='r')
 plt.plot(t_val, w_val, marker='', linestyle='-', color='b')
-# plt.plot(list(i[0] for i in intersect), list(i[1] for i in intersect), marker='', linestyle='-', color='g')
-# plt.plot(list(i[0] for i in intersect), list(i[2] for i in intersect), marker='', linestyle='-', color='g')
+
 plt.plot(list(i[0] for i in i2), list(i[1] for i in i2), marker='x', linestyle='-', color='g')
+plt.plot((apd_time_start, apd_time_start), (-0.05, 1.1*max(v_val)), marker='', linestyle='--', color='purple')
+
 # alpha_slider_ax  = fig.add_axes([0.25, 0.15, 0.65, 0.03], facecolor="r")
 # alpha_slider = Slider(alpha_slider_ax, 'mu', 0.0, 0.5, valinit=alpha)
 
@@ -100,9 +121,11 @@ plt.grid(True)
 plt.show()
 
 plt.figure(figsize=(8, 8))
-plt.plot(v_val, w_val, marker='', linestyle='-')
-plt.plot(v_null, w_null_1, marker='', linestyle='-')
-plt.plot(v_null, w_null_2, marker='', linestyle='-')
-plt.plot(list(i[1] for i in intersect), list(i[2] for i in intersect), marker='', linestyle='', color='b')
+plt.plot(v_val, w_val, marker='', linestyle='-', color='blue')
+# plt.plot(v_val[plot_start_value:], w_val[plot_start_value:], marker='', linestyle='-', color='red')
+plt.plot(v_null, w_null_1, marker='', linestyle='-', color='orange')
+plt.plot(v_null, w_null_2, marker='', linestyle='-', color='green')
+plt.plot((threshold, threshold), (min(w_null_2), max(w_null_1)), marker='', linestyle='--', color='purple')
+# plt.plot(list(i[1] for i in intersect), list(i[2] for i in intersect), marker='', linestyle='', color='b')
 plt.grid(True)
 plt.show()
