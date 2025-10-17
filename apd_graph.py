@@ -2,7 +2,6 @@ from numerical_integrator import *
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Slider
 import numpy as np
-import statistics
 
 version = 0
 
@@ -44,41 +43,9 @@ n = int(np.ceil(t_f / dt))
 v_0 = 0
 w_0 = 0.1
 t_0 = 0
-# v_val = np.zeros(n + 1)
-# w_val = np.zeros(n + 1)
-# t_val = np.zeros(n + 1)
-# v_val[0] = v_0
-# w_val[0] = w_0
-# t_val[0] = t_0
 
 percent_value = 7/8
-
-
-def apd_grapher(version, v_0, w_0, t_0, dt, n, v_param, w_param, I_param, percent_value, specific_T):
-    apd_list = []
-    avs_list = []
-    T_list = []
-    for T in range(50, 150, 10):
-        I_param[0] = T
-        v_val, w_val, t_val = run(version, v_0, w_0, t_0, dt, n, v_param, w_param, I_param)
-        apds, avg_apd, in_alt, avg_v, avg_w, index_start = apd_calc(t_val, v_val, w_val, percent_value, T, n, dt) 
-        if T == specific_T:
-            specifics = [
-                v_val,
-                w_val,
-                t_val,
-                in_alt,
-                avg_apd,
-                avg_v,
-                avg_w,
-                apds,
-                index_start
-            ]
-        apd_list.append(apds)
-        avs_list.append(avg_apd)
-        T_list.append(1/T)
-    return T_list, apd_list, avs_list, specifics
-    
+   
 h = 0.012
 k = -0.001
 specific_T = 130
@@ -125,21 +92,11 @@ plt.show()
 fig = plt.figure(figsize=(9, 9))
 
 for i in range(len(compound_T_vals)):
-    # apd_calc_start = round(percent_value*apd_len_list[i])
-    # apd_time_start = apd_calc_start * T
-    # index_start = round(apd_time_start/dt)
-    # print(apd_calc_start, apd_time_start, index_start, len(compound_v_vals[i]))
     index_start = apd_index_list[i]
     plt.plot((apd_index_list[i]*dt, apd_index_list[i]*dt), (0,1.1), marker='', linestyle='dashed', color=colors[-2])
     plt.plot((apd_index_list[i]*dt+specific_T, apd_index_list[i]*dt+specific_T), (0,1.1), marker='', linestyle='dashed', color=colors[-2])
     plt.plot((apd_index_list[i]*dt+2*specific_T, apd_index_list[i]*dt+2*specific_T), (0,1.1), marker='', linestyle='dashed', color=colors[-2])
     if alt_list[i]:
-        # apd_calc_start = round(percent_value*len(compound_apd_vals[i]))
-        # apd_time_start = apd_calc_start * T
-        # avg_apd_time_stamp = apd_time_start + avs_list[i]
-        # print(avg_apd_time_stamp)
-        # plt.plot((avg_apd_time_stamp,avg_apd_time_stamp),(0,max(compound_v_vals[i])), marker='x', linestyle='dashed', color=colors[2])
-        # plt.plot((index_start,t_f), (avg_v_list[i],avg_v_list[i]), marker='', linestyle='-', color=colors[0])
         plt.plot((apd_index_list[i]*dt, t_f), (avg_v_list[i], avg_v_list[i]), marker='', linestyle='dashed', color=colors[3])
         plt.plot((apd_index_list[i]*dt, t_f), (avg_w_list[i], avg_w_list[i]), marker='', linestyle='dashed', color=colors[3])
         plt.plot(comound_t_vals[i][index_start:], compound_v_vals[i][index_start:], marker='', linestyle='-', color=colors[0])

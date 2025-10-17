@@ -100,16 +100,30 @@ def apd_calc(t_val, v_val, w_val, percent_value, T, n, dt):
 
     avg_v = (v_max_1 + v_max_2)/2
     avg_w = (w_max_1 + w_max_2)/2
-
-    # print(n, percent_value, len(apd), apd_calc_start, index_start, avg_apd_index, v_val[avg_apd_index], w_val[avg_apd_index])
-    # avg_v = v_val[avg_apd_index]
-    # avg_w = w_val[avg_apd_index]
-    # for i in range(index_start, len(v_val)-1):
-    #     if (t_val[i] - avg_apd_time_stamp)*(t_val[i+1] - avg_apd_time_stamp) < 0:
-    #         print(t_val[i], t_val[i+1])
-    #         avg_v = ((t_val[i+1] - avg_apd_time_stamp)*v_val[i+1] + (avg_apd_time_stamp - t_val[i])*v_val[i])/(t_val[i+1]-t_val[i])
-    #         avg_w = ((t_val[i+1] - avg_apd_time_stamp)*w_val[i+1] + (avg_apd_time_stamp - t_val[i])*w_val[i])/(t_val[i+1]-t_val[i])
-    #         print(max(v_val), max(w_val), avg_v, avg_w)
-    #         break
     
     return sorted([apd1, apd2]), avg_apd, in_alt, avg_v, avg_w, index_start
+
+def apd_grapher(version, v_0, w_0, t_0, dt, n, v_param, w_param, I_param, percent_value, specific_T):
+    apd_list = []
+    avs_list = []
+    T_list = []
+    for T in range(50, 150, 10):
+        I_param[0] = T
+        v_val, w_val, t_val = run(version, v_0, w_0, t_0, dt, n, v_param, w_param, I_param)
+        apds, avg_apd, in_alt, avg_v, avg_w, index_start = apd_calc(t_val, v_val, w_val, percent_value, T, n, dt) 
+        if T == specific_T:
+            specifics = [
+                v_val,
+                w_val,
+                t_val,
+                in_alt,
+                avg_apd,
+                avg_v,
+                avg_w,
+                apds,
+                index_start
+            ]
+        apd_list.append(apds)
+        avs_list.append(avg_apd)
+        T_list.append(1/T)
+    return T_list, apd_list, avs_list, specifics
