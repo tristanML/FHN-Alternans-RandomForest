@@ -5,6 +5,8 @@ def v_diff(version, v, w,  *args):
     if version == 0:
         mu, alpha = args
         return mu * v * (1 - v) * (v - alpha) - v * w 
+    #  w = (1 - v) * (v - alpha) + I/v
+    # 
     if version == 4:
         alpha = args
         return v * (1 - v) * (v - alpha) - w
@@ -21,8 +23,9 @@ def step(version, v, w, t, dt, v_param, w_param, intersect, *args):
     I = 0
     T, duration, I_stim, t_start = args
     if t % T <= duration and t >= t_start:
+        # v = v_param[1] + 0.3
         I = I_stim
-        intersect.append([t,v,w])
+        # intersect.append([t,v,w])
     v += (v_diff(version, v, w, *v_param)+I) * dt
     w += w_diff(version, v, w, *w_param) * dt
     t += dt
@@ -42,6 +45,24 @@ def run(version, v_0, w_0, t_0, dt, n, v_param, w_param, I_param):
         w_val[i+1] = w_0
         t_val[i+1] = t_0
     return v_val, w_val, t_val
+
+def run2(params):
+    version, v_0, w_0, t_0, dt, n, v_param, w_param, I_param, percent_value  = params
+    intersect = []
+    v_val = np.zeros(n + 1)
+    w_val = np.zeros(n + 1)
+    t_val = np.zeros(n + 1)
+    v_val[0] = v_0
+    w_val[0] = w_0
+    t_val[0] = t_0
+    for i in range(n):
+        v_0, w_0, t_0 = step(version, v_0, w_0, t_0, dt, v_param, w_param, intersect, *I_param)
+        v_val[i+1] = v_0
+        w_val[i+1] = w_0
+        t_val[i+1] = t_0
+    
+    apds, avg_apd, in_alt, avg_v, avg_w, index_start = apd_calc(t_val, v_val, w_val, percent_value, I_param[0], n, dt) 
+    return (params, t_val, v_val, w_val, apds, avg_apd, in_alt, avg_v, avg_w, index_start)
 
 def apd_calc(t_val, v_val, w_val, percent_value, T, n, dt):
     threshold = 0.3*max(v_val)
@@ -107,7 +128,7 @@ def apd_grapher(version, v_0, w_0, t_0, dt, n, v_param, w_param, I_param, percen
     apd_list = []
     avs_list = []
     T_list = []
-    for T in range(50, 150, 10):
+    for T in range(10, 150, 10):
         I_param[0] = T
         v_val, w_val, t_val = run(version, v_0, w_0, t_0, dt, n, v_param, w_param, I_param)
         apds, avg_apd, in_alt, avg_v, avg_w, index_start = apd_calc(t_val, v_val, w_val, percent_value, T, n, dt) 

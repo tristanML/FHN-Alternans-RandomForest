@@ -13,7 +13,7 @@ if version == 0:
     lower_beta = 1.04
     mid_beta = 1.0889
     max_beta = 1.119
-    eps = 0.01
+    eps = 0.04
     v_param = [mu, alpha]
     w_param = [eps, beta]
 

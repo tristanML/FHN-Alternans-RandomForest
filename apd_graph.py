@@ -2,6 +2,7 @@ from numerical_integrator import *
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Slider
 import numpy as np
+import time
 
 version = 0
 
@@ -46,13 +47,14 @@ t_0 = 0
 
 percent_value = 7/8
    
-h = 0.012
+h = 0.014
+f = 0.004
 k = -0.001
-specific_T = 130
+specific_T = 100
 
 compound_v_vals = []
 compound_w_vals = []
-comound_t_vals = []
+compound_t_vals = []
 compound_T_vals = []
 compound_apd_vals = []
 alt_list = []
@@ -61,7 +63,9 @@ avg_v_list = []
 avg_w_list = []
 apd_index_list = []
 
-for i in range(8):
+ti = time.time()
+
+for i in range(1):
     eps = h + i*k
     w_param = [eps, beta]
     T_list, apd_list, avs_list, specifics = apd_grapher(version, v_0, w_0, t_0, dt, n, v_param, w_param, I_param, percent_value, specific_T)
@@ -69,17 +73,22 @@ for i in range(8):
     compound_apd_vals.append(apd_list)
     compound_v_vals.append(specifics[0])
     compound_w_vals.append(specifics[1])
-    comound_t_vals.append(specifics[2])
+    compound_t_vals.append(specifics[2])
     alt_list.append(specifics[3])
     avs_list.append(specifics[4])
     avg_v_list.append(specifics[5])
     avg_w_list.append(specifics[6])
     apd_index_list.append(specifics[8])
 
+print(time.time()-ti)
+
 fig = plt.figure(figsize=(9, 9))
 colors = ["r", "g", "b", "orange", "purple", "violet", "r", "g", "b", "orange", "purple", "violet",]
 
 for i in range(len(compound_T_vals)):
+    print(compound_T_vals[i])
+    print()
+    print(compound_apd_vals[i])
     plt.plot(compound_T_vals[i], compound_apd_vals[i], marker='', linestyle='-', color=colors[2])
 plt.plot((1/specific_T, 1/specific_T), (0,120), marker='', linestyle='-', color=colors[2])
 
@@ -93,17 +102,19 @@ fig = plt.figure(figsize=(9, 9))
 
 for i in range(len(compound_T_vals)):
     index_start = apd_index_list[i]
-    plt.plot((apd_index_list[i]*dt, apd_index_list[i]*dt), (0,1.1), marker='', linestyle='dashed', color=colors[-2])
-    plt.plot((apd_index_list[i]*dt+specific_T, apd_index_list[i]*dt+specific_T), (0,1.1), marker='', linestyle='dashed', color=colors[-2])
-    plt.plot((apd_index_list[i]*dt+2*specific_T, apd_index_list[i]*dt+2*specific_T), (0,1.1), marker='', linestyle='dashed', color=colors[-2])
+    index_time_start = index_start*dt
+
+    plt.plot((index_time_start, index_time_start), (0,1.1), marker='', linestyle='dashed', color=colors[-2])
+    plt.plot((index_time_start+specific_T, index_time_start+specific_T), (0,1.1), marker='', linestyle='dashed', color=colors[-2])
+    plt.plot((index_time_start+2*specific_T, index_time_start+2*specific_T), (0,1.1), marker='', linestyle='dashed', color=colors[-2])
     if alt_list[i]:
-        plt.plot((apd_index_list[i]*dt, t_f), (avg_v_list[i], avg_v_list[i]), marker='', linestyle='dashed', color=colors[3])
-        plt.plot((apd_index_list[i]*dt, t_f), (avg_w_list[i], avg_w_list[i]), marker='', linestyle='dashed', color=colors[3])
-        plt.plot(comound_t_vals[i][index_start:], compound_v_vals[i][index_start:], marker='', linestyle='-', color=colors[0])
-        plt.plot(comound_t_vals[i][index_start:], compound_w_vals[i][index_start:], marker='', linestyle='-', color=colors[0])
+        plt.plot((index_time_start, t_f), (avg_v_list[i], avg_v_list[i]), marker='', linestyle='dashed', color=colors[3])
+        plt.plot((index_time_start, t_f), (avg_w_list[i], avg_w_list[i]), marker='', linestyle='dashed', color=colors[3])
+        plt.plot(compound_t_vals[i][index_start:], compound_v_vals[i][index_start:], marker='', linestyle='-', color=colors[0])
+        plt.plot(compound_t_vals[i][index_start:], compound_w_vals[i][index_start:], marker='', linestyle='-', color=colors[0])
     else:
-        plt.plot(comound_t_vals[i][index_start:], compound_v_vals[i][index_start:], marker='', linestyle='-', color=colors[2])
-        plt.plot(comound_t_vals[i][index_start:], compound_w_vals[i][index_start:], marker='', linestyle='-', color=colors[2])
+        plt.plot(compound_t_vals[i][index_start:], compound_v_vals[i][index_start:], marker='', linestyle='-', color=colors[2])
+        plt.plot(compound_t_vals[i][index_start:], compound_w_vals[i][index_start:], marker='', linestyle='-', color=colors[2])
 
 plt.grid(True)
 plt.show()
@@ -112,6 +123,7 @@ v_null = np.linspace(min(compound_v_vals[0]), max(compound_v_vals[0]), 500)
 if version == 0:
     w_null_1 = list(v*(beta-v) for v in v_null)
     w_null_2 = list(mu*(1-v)*(v-alpha) for v in v_null)
+    w_null_3 = list(((v*(1 - v) * (v - alpha) + I_stim)/v) for v in v_null)
 if version == 4:
     w_null_1 = list((beta * v - delta)/gamma for v in v_null)
     w_null_2 = list(v * (1 - v) * (v - alpha) for v in v_null)
@@ -127,6 +139,7 @@ for i in range(len(compound_T_vals)):
 
 plt.plot(v_null, w_null_1, marker='', linestyle='-', color='orange')
 plt.plot(v_null, w_null_2, marker='', linestyle='-', color='green')
+# plt.plot(v_null, w_null_3, marker='', linestyle='-', color='purple')
 # k_p = (beta-1)/4
 # plt.plot((min(compound_v_vals[0]), max(compound_v_vals[0])), (k_p, k_p), marker='', linestyle='dashed', color='purple')
 
