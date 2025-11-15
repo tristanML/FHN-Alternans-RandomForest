@@ -64,6 +64,26 @@ def run2(params):
     apds, avg_apd, in_alt, avg_v, avg_w, index_start = apd_calc(t_val, v_val, w_val, percent_value, I_param[0], n, dt) 
     return (params, t_val, v_val, w_val, apds, avg_apd, in_alt, avg_v, avg_w, index_start)
 
+def run3(params):
+    version, v_0, w_0, t_0, dt, n, v_param, w_param, I_param, percent_value  = params
+    intersect = []
+    v_val = np.zeros(n + 1)
+    w_val = np.zeros(n + 1)
+    t_val = np.zeros(n + 1)
+    v_val[0] = v_0
+    w_val[0] = w_0
+    t_val[0] = t_0
+    for i in range(n):
+        v_0, w_0, t_0 = step(version, v_0, w_0, t_0, dt, v_param, w_param, intersect, *I_param)
+        v_val[i+1] = v_0
+        w_val[i+1] = w_0
+        t_val[i+1] = t_0
+    
+    apds, avg_apd, in_alt, avg_v, avg_w, index_start = apd_calc(t_val, v_val, w_val, percent_value, I_param[0], n, dt) 
+    ret = list(v_param+w_param+I_param)
+    ret.append(in_alt)
+    return ret
+
 def apd_calc(t_val, v_val, w_val, percent_value, T, n, dt):
     threshold = 0.3*max(v_val)
     threshold_intersections = []

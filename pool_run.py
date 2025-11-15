@@ -32,7 +32,7 @@ T = 230
 duration = 1
 t_start = 0
 n_T = 500
-specific_T = 230
+specific_T = 600
 
 dt = 1
 t_f = T*n_T
@@ -51,7 +51,7 @@ percent_value = 7/8
 if __name__ == '__main__':
 #
     params = []
-    for en in [0.005,0.007]:
+    for en in np.arange(0.0001,0.02,0.0001):
         for Tn in range(specific_T, specific_T+10, 10):
             v_param = [mu, alpha]
             w_param = [en, beta]
