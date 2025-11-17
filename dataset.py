@@ -2,6 +2,7 @@ from numerical_integrator import *
 from multiprocessing import Pool
 import matplotlib.pyplot as plt
 import sklearn
+from time import time
 
 
 compound_v_vals = []
@@ -52,34 +53,82 @@ percent_value = 7/8
 if __name__ == '__main__':
 #
     params = []
-    for en in np.arange(0.0001,0.02,0.001):
-        for Tn in range(100, 600, 50):
-            params.append([version, v_0, w_0, t_0, dt, n, v_param, [en,beta], [Tn,duration,I_stim,t_start], percent_value])
+    e_range = np.arange(0.0001,0.0220,0.0005)
+    T_range = range(50, 651, 10)
+    a_range = np.arange(0.01,0.60,0.01)
 
+    T_range = range(30, 210, 25)
+    a_range = np.arange(0.01,0.30,0.025)
+    e_range = np.arange(0.0001,0.0220,0.0005)
+
+    T_range = range(30, 210, 10)
+    a_range = np.arange(0.01,0.30,0.025)
+    e_range = np.arange(0.0001,0.0220,0.001)
+
+    # print(len(e_range)*len(T_range))
+    # for en in e_range:
+    #     for Tn in T_range:
+    #         params.append([version, v_0, w_0, t_0, dt, n, v_param, [en,beta], [Tn,duration,I_stim,t_start], percent_value])
+
+    # print(len(e_range)*len(a_range))
+    # for en in e_range:
+    #     for an in a_range:
+    #         params.append([version, v_0, w_0, t_0, dt, n, [mu,an], [en,beta], [T,duration,I_stim,t_start], percent_value])
+
+    # print(len(a_range)*len(T_range))
+    # for an in a_range:
+    #     for Tn in T_range:
+    #         params.append([version, v_0, w_0, t_0, dt, n, [mu,an], [eps,beta], [Tn,duration,I_stim,t_start], percent_value])
+    t1 = time()
+    print(len(a_range)*len(T_range)*len(e_range))
+    for an in a_range:
+        for Tn in T_range:
+            for en in e_range:
+                params.append([version, v_0, w_0, t_0, dt, n, [mu,an], [en,beta], [Tn,duration,I_stim,t_start], percent_value])
+    print(time()-t1)
+    t1 = time()
     p = Pool()
     result = p.map(run3, params)
+    print(time()-t1)
 
+    # 128.50350904464722 with print
+    # 131.5244140625 without print
 
     p.close()
     p.join()
-    print(result)
 
-    param_results = [[row[2],row[4]] for row in result]
+    param_results = [row[:-1] for row in result]
     alt_results = [row[-1] for row in result]
-    print(param_results[0])
-    print(alt_results[0])
 
-    clf = sklearn.svm.SVC()
-    clf.fit(param_results,alt_results)
+    for k in ["linear", "poly", "rbf", "sigmoid"]:
+        clf = sklearn.svm.SVC(kernel=k)
+        clf.fit(param_results,alt_results)
+        print(k, clf.score(param_results,alt_results))
 
-    fig = plt.figure(figsize=(8, 8))
+        # 94.3 % for rbf
+        # 94.3 % for poly
 
-    for i in range(len(param_results)):
-        if alt_results[i]:
-            plt.plot(param_results[i][0], param_results[i][1], marker='x', color='red')
-        else:
-            plt.plot(param_results[i][0], param_results[i][1], marker='x', color='blue')
+        # svc_results = clf.predict(param_results)
 
-    plt.grid()
-    plt.show()
+        # accuracy = 100 * sum(1 for a, s in zip(alt_results, svc_results) if a == s) / len(alt_results)
+
+        # print(k, accuracy)
+
+    # fig = plt.figure(figsize=(8, 8))
+    # ax = plt.axes(projection='3d')
+
+    # for i in range(len(param_results)):
+    #     if alt_results[i]:
+    #         ax.plot3D(param_results[i][0], param_results[i][1], param_results[i][2], marker='o', color='red')
+    #     else:
+    #         ax.plot3D(param_results[i][0], param_results[i][1], param_results[i][2], marker='o', color='blue')
+
+    # plt.xlabel("Period (T)")
+    # plt.ylabel("Epsilon $\epsilon$")
+    # plt.xlabel(r"Alpha $\alpha$")
+    # plt.ylabel("Epsilon $\epsilon$")
+    # plt.ylabel("Period (T)")
+
+    # plt.grid()
+    # plt.show()
 
