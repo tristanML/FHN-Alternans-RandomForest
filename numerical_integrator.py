@@ -64,6 +64,26 @@ def run2(params):
     apds, avg_apd, in_alt, avg_v, avg_w, index_start = apd_calc(t_val, v_val, w_val, percent_value, I_param[0], n, dt) 
     return (params, t_val, v_val, w_val, apds, avg_apd, in_alt, avg_v, avg_w, index_start)
 
+def run3(params):
+    version, v_0, w_0, t_0, dt, n, v_param, w_param, I_param, percent_value  = params
+    intersect = []
+    v_val = np.zeros(n + 1)
+    w_val = np.zeros(n + 1)
+    t_val = np.zeros(n + 1)
+    v_val[0] = v_0
+    w_val[0] = w_0
+    t_val[0] = t_0
+    for i in range(n):
+        v_0, w_0, t_0 = step(version, v_0, w_0, t_0, dt, v_param, w_param, intersect, *I_param)
+        v_val[i+1] = v_0
+        w_val[i+1] = w_0
+        t_val[i+1] = t_0
+    
+    apds, avg_apd, in_alt, avg_v, avg_w, index_start = apd_calc(t_val, v_val, w_val, percent_value, I_param[0], n, dt) 
+    ret = list(v_param+w_param+I_param)
+    ret.append(in_alt)
+    return ret
+
 def apd_calc(t_val, v_val, w_val, percent_value, T, n, dt):
     threshold = 0.3*max(v_val)
     threshold_intersections = []
@@ -83,12 +103,17 @@ def apd_calc(t_val, v_val, w_val, percent_value, T, n, dt):
     # If there are no alternans, the two average apds will be the same.
     apd1 = np.mean(list(apd[i] for i in range(apd_calc_start, len(apd), 2)))
     apd2 = np.mean(list(apd[i] for i in range(apd_calc_start+1, len(apd), 2)))
-    if apd1 - 5 <= apd2 and apd2 <= apd1 + 5:
-        print(T, "No alternans with APD: ", apd1, apd2)
-        in_alt = False
-    else:
-        print(T, "Alternans with APD: ", apd1, apd2)
-        in_alt = True
+    in_alt = not (apd1 - 5 <= apd2 and apd2 <= apd1 + 5)
+    # if in_alt:
+    #     print(T, "Alternans with APD: ", apd1, apd2)
+    # else:
+    #     print(T, "No alternans with APD: ", apd1, apd2)
+    # if apd1 - 5 <= apd2 and apd2 <= apd1 + 5:
+    #     # print(T, "No alternans with APD: ", apd1, apd2)
+    #     in_alt = False
+    # else:
+    #     print(T, "Alternans with APD: ", apd1, apd2)
+    #     in_alt = True
     
     #Finds the average of the two APDS. This would be the APD if the system was not in alternans 
     avg_apd = (apd1+apd2)/2

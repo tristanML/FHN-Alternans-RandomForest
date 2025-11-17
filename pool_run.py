@@ -32,7 +32,7 @@ T = 230
 duration = 1
 t_start = 0
 n_T = 500
-specific_T = 230
+specific_T = 600
 
 dt = 1
 t_f = T*n_T
@@ -51,7 +51,13 @@ percent_value = 7/8
 if __name__ == '__main__':
 #
     params = []
-    for en in [0.005,0.007]:
+    for en in np.arange(0.0001,0.02,0.0001):
+        for Tn in range(specific_T, specific_T+10, 10):
+            v_param = [mu, alpha]
+            w_param = [en, beta]
+            params.append([version, v_0, w_0, t_0, dt, n, v_param, w_param, [Tn, duration, I_stim, t_start], percent_value])
+    params = []
+    for en in np.arange(0.01,0.02,0.005):
         for Tn in range(specific_T, specific_T+10, 10):
             v_param = [mu, alpha]
             w_param = [en, beta]
@@ -138,7 +144,7 @@ if __name__ == '__main__':
     V, W = np.meshgrid(v, w)
     dv = v_diff(version,V,W,*v_param)
     dv2 = v_diff(version,V,W,*v_param)+I_stim
-    dw = 30*w_diff(version,V,W,*[0.005,beta])
+    dw = w_diff(version,V,W,*[0.005,beta])
 
     # DV, DW = np.meshgrid(dv, dw)
 
