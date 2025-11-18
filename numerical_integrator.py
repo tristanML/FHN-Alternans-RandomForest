@@ -1,4 +1,3 @@
-import math
 import numpy as np
 
 def v_diff(version, v, w,  *args):

@@ -57,13 +57,15 @@ if __name__ == '__main__':
     T_range = range(50, 651, 10)
     a_range = np.arange(0.01,0.60,0.01)
 
-    T_range = range(30, 210, 25)
-    a_range = np.arange(0.01,0.30,0.025)
-    e_range = np.arange(0.0001,0.0220,0.0005)
-
     T_range = range(30, 210, 10)
     a_range = np.arange(0.01,0.30,0.025)
     e_range = np.arange(0.0001,0.0220,0.001)
+    #4752 samples
+
+    T_range = range(150, 210, 5)
+    a_range = np.arange(0.01,0.25,0.025)
+    e_range = np.arange(0.0001,0.0220,0.005)
+    #900 samples
 
     # print(len(e_range)*len(T_range))
     # for en in e_range:
@@ -97,11 +99,13 @@ if __name__ == '__main__':
     p.close()
     p.join()
 
-    param_results = [row[:-1] for row in result]
+    param_results = [[row[1],row[2],row[4]] for row in result]
     alt_results = [row[-1] for row in result]
 
+    print("beginning SVM")
     for k in ["linear", "poly", "rbf", "sigmoid"]:
-        clf = sklearn.svm.SVC(kernel=k)
+        clf = sklearn.svm.SVC(kernel=k, C = 0.5)
+        print("prefit")
         clf.fit(param_results,alt_results)
         print(k, clf.score(param_results,alt_results))
 
