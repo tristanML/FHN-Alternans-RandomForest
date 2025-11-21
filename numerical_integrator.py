@@ -1,4 +1,5 @@
 import numpy as np
+from time import time
 
 def v_diff(version, v, w,  *args):
     if version == 0:
@@ -64,6 +65,8 @@ def run2(params):
     return (params, t_val, v_val, w_val, apds, avg_apd, in_alt, avg_v, avg_w, index_start)
 
 def run3(params):
+    t0 = time()
+    t1 = time()
     version, v_0, w_0, t_0, dt, n, v_param, w_param, I_param, percent_value  = params
     intersect = []
     v_val = np.zeros(n + 1)
@@ -72,15 +75,20 @@ def run3(params):
     v_val[0] = v_0
     w_val[0] = w_0
     t_val[0] = t_0
+    #print("vectors loaded", time()-t1)
+    t1 = time()
     for i in range(n):
         v_0, w_0, t_0 = step(version, v_0, w_0, t_0, dt, v_param, w_param, intersect, *I_param)
         v_val[i+1] = v_0
         w_val[i+1] = w_0
         t_val[i+1] = t_0
-    
+    #print(n,"steps run", time()-t1)
+    t1=time()
     apds, avg_apd, in_alt, avg_v, avg_w, index_start = apd_calc(t_val, v_val, w_val, percent_value, I_param[0], n, dt) 
+    #print("apd calc run", time()-t1)
     ret = list(v_param+w_param+I_param)
-    ret.append(in_alt)
+    ret.append([-1,1][in_alt])
+    #print(n, "steps, total", time()-t0)
     return ret
 
 def apd_calc(t_val, v_val, w_val, percent_value, T, n, dt):

@@ -13,7 +13,7 @@ if version == 0:
     lower_beta = 1.04
     mid_beta = 1.0889
     max_beta = 1.119
-    eps = 0.04
+    eps = 0.02
     v_param = [mu, alpha]
     w_param = [eps, beta]
 
@@ -64,7 +64,7 @@ apd = []
 for i in range(0, len(i2)-1, 2):
     apd.append(i2[i+1][0]-i2[i][0])
 
-percent_value = 7/8
+percent_value = 0.9
 apd_calc_start = round(percent_value*len(apd))
 apd_time_start = apd_calc_start * T
 plot_start_value = round(percent_value*n)
